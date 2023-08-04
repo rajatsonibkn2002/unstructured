@@ -21,7 +21,7 @@ from unstructured.partition.common import (
 def append_href_in_bracket(html):
     soup = BeautifulSoup(html, 'html.parser')
 
-    for anchor_tag in soup.find_all('a')
+    for anchor_tag in soup.find_all('a'):
         href = anchor_tag.get('href')
         text = anchor_tag.get_text()
         new_text = f"{text} ({href})"
@@ -117,6 +117,7 @@ def partition_html(
             raise ValueError(f"Expected content type text/html. Got {content_type}.")
 
         modified_html = append_href_in_bracket(response.text)
+        print('heyoman', modified_html)
         document = HTMLDocument.from_string(modified_html, parser=parser)
 
     return document_to_element_list(
