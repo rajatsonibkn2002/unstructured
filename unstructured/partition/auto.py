@@ -12,6 +12,7 @@ from unstructured.file_utils.filetype import (
     is_json_processable,
 )
 from unstructured.logger import logger
+from bs4 import BeautifulSoup
 from unstructured.partition.common import exactly_one
 from unstructured.partition.email import partition_email
 from unstructured.partition.html import partition_html
@@ -303,6 +304,15 @@ def partition(
 
     return elements
 
+def append_href_in_bracket(html):
+    soup = BeautifulSoup(html, 'html.parser')
+
+    for anchor_tag in soup.find_all('a'):
+        href = anchor_tag.get('href')
+        text = anchor_tag.get_text()
+        new_text = f"{text} ({href})"
+        anchor_tag.string = new_text
+    return str(soup) 
 
 def file_and_type_from_url(
     url: str,
@@ -311,7 +321,8 @@ def file_and_type_from_url(
     ssl_verify: bool = True,
 ) -> Tuple[io.BytesIO, Optional[FileType]]:
     response = requests.get(url, headers=headers, verify=ssl_verify)
-    file = io.BytesIO(response.content)
+    modified_html = append_href_in_bracket(response.text)
+    file = io.BytesIO(modified_html)
 
     content_type = content_type or response.headers.get("Content-Type")
     encoding = response.headers.get("Content-Encoding", "utf-8")

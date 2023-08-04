@@ -1,7 +1,6 @@
 from typing import IO, Dict, List, Optional
 
 import requests
-from bs4 import BeautifulSoup
 from unstructured.documents.elements import Element, process_metadata
 from unstructured.documents.html import HTMLDocument
 from unstructured.documents.xml import VALID_PARSERS
@@ -18,15 +17,6 @@ from unstructured.partition.common import (
     get_last_modified_date_from_file,
 )
 
-def append_href_in_bracket(html):
-    soup = BeautifulSoup(html, 'html.parser')
-
-    for anchor_tag in soup.find_all('a'):
-        href = anchor_tag.get('href')
-        text = anchor_tag.get_text()
-        new_text = f"{text} ({href})"
-        anchor_tag.string = new_text
-    return str(soup) 
 
 @process_metadata()
 @add_metadata_with_filetype(FileType.HTML)
@@ -116,9 +106,7 @@ def partition_html(
         if not content_type.startswith("text/html"):
             raise ValueError(f"Expected content type text/html. Got {content_type}.")
 
-        modified_html = append_href_in_bracket(response.text)
-        print('heyoman', modified_html)
-        document = HTMLDocument.from_string(modified_html, parser=parser)
+        document = HTMLDocument.from_string(response.text, parser=parser)
 
     return document_to_element_list(
         document,
