@@ -322,7 +322,7 @@ def file_and_type_from_url(
 ) -> Tuple[io.BytesIO, Optional[FileType]]:
     response = requests.get(url, headers=headers, verify=ssl_verify)
     modified_html = append_href_in_bracket(response.text)
-    file = io.BytesIO(modified_html)
+    file = io.BytesIO(modified_html.encode('utf-8'))
 
     content_type = content_type or response.headers.get("Content-Type")
     encoding = response.headers.get("Content-Encoding", "utf-8")
